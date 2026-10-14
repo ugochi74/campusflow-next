@@ -11,6 +11,7 @@ from campusflow.workflow import (
 )
 
 from campusflow.reports import generate_report
+from campusflow.search import search_tickets
 
 from campusflow.storage import load_tickets, save_tickets
 
@@ -26,8 +27,20 @@ def display_menu():
     print("5. Update Ticket Status")
     print("6. Reopen Ticket")
     print("7. View Priority Work Queue")
-    print("8. Generate Report")
-    print("9. Exit")
+    print("8. Search Tickets")
+    print("9. Generate Report")
+    print("10. Exit")
+
+
+def get_valid_ticket_input(prompt, validation_function, error_message):
+    while True:
+        value = input(prompt).strip()
+
+        try:
+            validation_function(value)
+            return value
+        except ValueError:
+            print(error_message)
 
 
 def main():
@@ -41,39 +54,88 @@ def main():
     while True:
         display_menu()
 
-        choice = input("\nEnter your choice (1-9): ").strip()
+        choice = input("\nEnter your choice (1-10): ").strip()
 
-        if choice == "9":
+        if choice == "10":
             print("\nThank you for using CampusFlow!")
             break
 
         elif choice == "1":
             print("\n--- Create New Ticket ---")
-            
-            title = input("Enter ticket title: ")
-            category = input("Enter category (Network/Hardware/Software/Other): ")
-            urgency = input("Enter urgency (low/medium/high): ")
-            affected_users_input = input("Enter number of affected users: ")
-            
+
+            while True:
+                title = input("Enter ticket title: ").strip()
+
+                if not title:
+                    print("Title cannot be empty.")
+                    continue
+
+                break
+
+            while True:
+                category = input(
+                    "Enter category (Network/Hardware/Software/Other): "
+                ).strip()
+
+                if category.title() not in {
+                    "Network", "Hardware", "Software", "Other"
+                }:
+                    print(
+                        "Category must be Network, Hardware, "
+                        "Software, or Other."
+                    )
+                    continue
+
+                category = category.title()
+                break
+
+            while True:
+                urgency = input(
+                    "Enter urgency (low/medium/high): "
+                ).strip().lower()
+
+                if urgency not in {"low", "medium", "high"}:
+                    print("Urgency must be low, medium, or high.")
+                    continue
+
+                break
+
+            while True:
+                affected_users_input = input(
+                    "Enter number of affected users: "
+                ).strip()
+
+                try:
+                    affected_users = int(affected_users_input)
+
+                    if affected_users <= 0:
+                        print(
+                            "Affected users must be greater than zero."
+                        )
+                        continue
+
+                    break
+
+                except ValueError:
+                    print("Affected users must be a whole number.")
+
             try:
-                affected_users = int(affected_users_input)
-                
                 new_ticket = create_ticket(
                     title,
                     category,
                     urgency,
                     affected_users,
                     tickets
-                    
                 )
-                
-                tickets.append(new_ticket)
 
+                tickets.append(new_ticket)
                 save_tickets(tickets)
-                
-                print(f"\nTicket {new_ticket['id']} created successfully!")
+
+                print(
+                    f"\nTicket {new_ticket['id']} created successfully!"
+                )
                 print(f"Priority: {new_ticket['priority']}")
-            
+
             except ValueError as error:
                 print(f"\nCould not create ticket: {error}")
 
@@ -91,6 +153,7 @@ def main():
                 print("\nTicket not found.")
 
             else:
+               
                 print("\nTicket Details")
                 print("--------------------------")
                 print(f"ID: {ticket['id']}")
@@ -100,7 +163,10 @@ def main():
                 print(f"Affected Users: {ticket['affected_users']}")
                 print(f"Priority: {ticket['priority']}")
                 print(f"Status: {ticket['status']}")
-                print(f"Assigned To: {ticket['assigned_to'] or 'Unassigned'}")
+                print(
+                    f"Assigned To: "
+                    f"{ticket['assigned_to'] or 'Unassigned'}"
+                )
 
         elif choice == "4":
             print("\n--- Assign Ticket ---")
@@ -174,8 +240,66 @@ def main():
                         f"Priority: {ticket['priority']} | "
                         f"Status: {ticket['status']}"
                     )
+        
 
         elif choice == "8":
+            print("\n--- Search Tickets ---")
+            print("Leave a filter blank to skip it.")
+
+            title = input("Search by title: ").strip()
+            category = input("Filter by category: ").strip()
+            status = input("Filter by status: ").strip()
+            priority = input("Filter by priority: ").strip()
+
+            # Reuse the existing category validation message.
+            valid_categories = {
+                "network", "hardware", "software", "other"
+            }
+
+            if category and category.lower() not in valid_categories:
+                print(
+                    "\nCategory must be Network, Hardware, "
+                    "Software, or Other."
+                )
+                continue
+
+            valid_statuses = {"open", "in_progress", "resolved"}
+
+            if status and status.lower() not in valid_statuses:
+                print("\nInvalid status option.")
+                continue
+
+            valid_priorities = {"critical", "high", "medium", "low"}
+
+            if priority and priority.lower() not in valid_priorities:
+                print("\nInvalid priority option.")
+                continue
+
+            results = search_tickets(
+                tickets,
+                title=title,
+                category=category,
+                status=status,
+                priority=priority
+            )
+
+            if not results:
+                print("\nNo matching tickets found.")
+            else:
+                print(f"\nFound {len(results)} matching ticket(s):")
+
+                for ticket in results:
+                    print(
+                        f"ID: {ticket['id']} | "
+                        f"Title: {ticket['title']} | "
+                        f"Category: {ticket['category']} | "
+                        f"Priority: {ticket['priority']} | "
+                        f"Status: {ticket['status']} | "
+                        f"Assigned To: "
+                        f"{ticket['assigned_to'] or 'Unassigned'}"
+                    )
+
+        elif choice == "9":
             print("\n========== CAMPUSFLOW REPORT ==========")
 
             report = generate_report(tickets)
@@ -193,9 +317,23 @@ def main():
             print(f"  Medium: {report['by_priority']['medium']}")
             print(f"  Low: {report['by_priority']['low']}")
 
+            print("\nTickets by Category:")
+            print(f"  Network: {report['by_category']['Network']}")
+            print(f"  Hardware: {report['by_category']['Hardware']}")
+            print(f"  Software: {report['by_category']['Software']}")
+            print(f"  Other: {report['by_category']['Other']}")
+
+            print("\nResolution Summary:")
+            print(f"  Resolved Tickets: {report['resolved']}")
+            print(f"  Unresolved Tickets: {report['unresolved']}")
+            print(
+                f"  Resolution Percentage: "
+                f"{report['resolution_percentage']:.1f}%"
+            )
+
 
         else:
-            print("\nInvalid option. Please enter a number from 1 to 9.")
+            print("\nInvalid option. Please enter a number from 1 to 10.")
 
 
 if __name__ == "__main__":
