@@ -1,6 +1,6 @@
 import unittest
 
-from campusflow.workflow import view_ticket
+from campusflow.workflow import view_ticket, add_note
 from campusflow.workflow import assign_ticket
 from campusflow.workflow import update_ticket_status, reopen_ticket
 from campusflow.workflow import get_work_queue
@@ -198,6 +198,83 @@ class TestWorkQueue(unittest.TestCase):
     def test_empty_queue(self):
         self.assertEqual(get_work_queue([]), [])
 
+class TestAddNote(unittest.TestCase):
+
+    def setUp(self):
+        self.tickets = [
+            {
+                "id": "T001",
+                "status": "open",
+                "assigned_to": "David",
+                "notes": []
+            }
+        ]
+
+    def test_add_note_successfully(self):
+        result = add_note(
+            self.tickets, "T001", "Engineer A",
+            "Investigating the Wi-Fi issue"
+        )
+
+        self.assertEqual(result, "Note N001 added successfully.")
+        self.assertEqual(
+            self.tickets[0]["notes"],
+            [{
+                "note_id": "N001",
+                "author": "Engineer A",
+                "message": "Investigating the Wi-Fi issue"
+            }]
+        )
+
+    def test_cannot_add_note_to_resolved_ticket(self):
+        self.tickets[0]["status"] = "resolved"
+
+        result = add_note(
+            self.tickets, "T001", "Engineer A",
+            "Investigating the Wi-Fi issue"
+        )
+
+        self.assertEqual(
+            result,
+            "Cannot add notes to a resolved ticket. Reopen it first."
+        )
+        self.assertEqual(self.tickets[0]["notes"], [])
+
+    def test_rejects_short_message_without_mutation(self):
+        result = add_note(
+            self.tickets, "T001", "Engineer A", "bad"
+        )
+
+        self.assertEqual(
+            result,
+            "Note message must be between 5 and 300 characters."
+        )
+        self.assertEqual(self.tickets[0]["notes"], [])
+
+    def test_rejects_empty_author_without_mutation(self):
+        result = add_note(
+            self.tickets, "T001", "   ",
+            "Investigating the Wi-Fi issue"
+        )
+
+        self.assertEqual(result, "Note author cannot be empty.")
+        self.assertEqual(self.tickets[0]["notes"], [])
+
+    def test_note_ids_increment(self):
+        add_note(
+            self.tickets, "T001", "Engineer A",
+            "Investigating the Wi-Fi issue"
+        )
+        result = add_note(
+            self.tickets, "T001", "Engineer B",
+            "Testing the network connection"
+        )
+
+        self.assertEqual(result, "Note N002 added successfully.")
+        self.assertEqual(
+            [note["note_id"] for note in self.tickets[0]["notes"]],
+            ["N001", "N002"]
+        )
 
 if __name__ == "__main__":
     unittest.main()
