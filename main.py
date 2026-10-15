@@ -9,12 +9,11 @@ from campusflow.workflow import (
     reopen_ticket,
     get_work_queue
 )
-
+from campusflow.knowledge_check import run_knowledge_check
 from campusflow.reports import generate_report
 from campusflow.search import search_tickets
 
 from campusflow.storage import load_tickets, save_tickets
-
 
 def display_menu():
     print("\n========== CAMPUSFLOW ==========")
@@ -29,7 +28,8 @@ def display_menu():
     print("7. View Priority Work Queue")
     print("8. Search Tickets")
     print("9. Generate Report")
-    print("10. Exit")
+    print("10. Engineering Knowledge Check")
+    print("11. Exit")
 
 
 def get_valid_ticket_input(prompt, validation_function, error_message):
@@ -54,9 +54,9 @@ def main():
     while True:
         display_menu()
 
-        choice = input("\nEnter your choice (1-10): ").strip()
+        choice = input("\nEnter your choice (1-11): ").strip()
 
-        if choice == "10":
+        if choice == "11":
             print("\nThank you for using CampusFlow!")
             break
 
@@ -331,7 +331,8 @@ def main():
                 f"{report['resolution_percentage']:.1f}%"
             )
 
-
+        elif choice == "10":
+            run_knowledge_check()
         else:
             print("\nInvalid option. Please enter a number from 1 to 10.")
 
