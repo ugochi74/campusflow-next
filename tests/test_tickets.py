@@ -53,7 +53,13 @@ class TestValidateTicketInput(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_ticket_input("Wi-Fi is down", "Network", "high", 2.5)
 
+    def test_boolean_affected_users_is_rejected(self):
+        with self.assertRaises(ValueError):
+            validate_ticket_input("Wi-Fi is down", "Network", "high", True)
 
+    def test_negative_affected_users_is_rejected(self):
+        with self.assertRaises(ValueError):
+            validate_ticket_input("Wi-Fi is down", "Network", "high", -1)
 
 
 class TestGenerateTicketId(unittest.TestCase):
