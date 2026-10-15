@@ -7,8 +7,12 @@ from campusflow.workflow import (
     assign_ticket,
     update_ticket_status,
     reopen_ticket,
+<<<<<<< HEAD
+    get_work_queue 
+=======
     get_work_queue,
     add_note,
+>>>>>>> main
 )
 from campusflow.knowledge_check import run_knowledge_check
 from campusflow.reports import generate_report
