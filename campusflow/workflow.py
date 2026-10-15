@@ -20,6 +20,73 @@ def view_ticket(tickets, ticket_id):
     return None
 
 
+def add_note(tickets, ticket_id, author, message):
+    """Add a validated note to an open or in-progress ticket."""
+
+    ticket = view_ticket(tickets, ticket_id)
+
+    if ticket is None:
+        return "Ticket not found."
+
+    if ticket["status"] not in {"open", "in_progress"}:
+        return "Cannot add notes to a resolved ticket. Reopen it first."
+
+    if not isinstance(author, str) or not author.strip():
+        return "Note author cannot be empty."
+
+    if not isinstance(message, str):
+        return "Note message must be between 5 and 300 characters."
+
+    message = message.strip()
+    if not 5 <= len(message) <= 300:
+        return "Note message must be between 5 and 300 characters."
+
+    # Build the notes list if handling a legacy in-memory ticket.
+    notes = ticket.get("notes")
+    if notes is None:
+        notes = []
+    elif not isinstance(notes, list):
+        return "Ticket notes are invalid."
+
+
+
+    # Validate existing note IDs before choosing the next ID.
+    note_numbers = []
+    seen_note_ids = set()
+
+    for note in notes:
+        if not isinstance(note, dict):
+            return "Ticket notes are invalid."
+
+        note_id = note.get("note_id", "")
+        if (
+            not isinstance(note_id, str)
+            or len(note_id) < 2
+            or note_id[0] != "N"
+            or not note_id[1:].isdigit()
+            or int(note_id[1:]) < 1
+            or note_id in seen_note_ids
+        ):
+            return "Ticket notes are invalid."
+
+        seen_note_ids.add(note_id)
+        note_numbers.append(int(note_id[1:]))
+    next_number = max(note_numbers, default=0) + 1
+    new_note = {
+        "note_id": f"N{next_number:03d}",
+        "author": author.strip(),
+        "message": message,
+    }
+
+    # Mutate the ticket only after every validation has succeeded.
+    if "notes" not in ticket or ticket["notes"] is None:
+        ticket["notes"] = []
+
+    ticket["notes"].append(new_note)
+
+    return f"Note {new_note['note_id']} added successfully."
+
+
 def assign_ticket(tickets, ticket_id, staff_name):
     ticket = view_ticket(tickets, ticket_id)
 

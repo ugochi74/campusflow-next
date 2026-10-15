@@ -27,6 +27,7 @@ class TestStorage(unittest.TestCase):
                 "priority": "critical",
                 "status": "open",
                 "assigned_to": None,
+                "notes": [],
             }
         ]
 
@@ -42,6 +43,32 @@ class TestStorage(unittest.TestCase):
         result = load_tickets(self.filename)
 
         self.assertEqual(result, self.tickets)
+    def test_save_and_load_preserves_notes(self):
+        self.tickets[0]["notes"] = [
+            {
+                "note_id": "N001",
+                "author": "Engineer A",
+                "message": "Investigating the Wi-Fi issue",
+            }
+        ]
+
+        save_tickets(self.tickets, self.filename)
+        result = load_tickets(self.filename)
+
+        self.assertEqual(result[0]["notes"], self.tickets[0]["notes"])
+
+    def test_legacy_ticket_without_notes_loads_with_empty_notes(self):
+        legacy_ticket = self.tickets[0].copy()
+        del legacy_ticket["notes"]
+
+        Path(self.filename).write_text(
+            json.dumps([legacy_ticket]),
+            encoding="utf-8",
+        )
+
+        result = load_tickets(self.filename)
+
+        self.assertEqual(result[0]["notes"], [])
 
     def test_invalid_json_raises_error(self):
         Path(self.filename).write_text(

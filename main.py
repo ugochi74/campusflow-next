@@ -7,7 +7,8 @@ from campusflow.workflow import (
     assign_ticket,
     update_ticket_status,
     reopen_ticket,
-    get_work_queue
+    get_work_queue,
+    add_note,
 )
 from campusflow.knowledge_check import run_knowledge_check
 from campusflow.reports import generate_report
@@ -29,8 +30,8 @@ def display_menu():
     print("8. Search Tickets")
     print("9. Generate Report")
     print("10. Engineering Knowledge Check")
-    print("11. Exit")
-
+    print("11. Add Note to Ticket")
+    print("12. Exit")
 
 def get_valid_ticket_input(prompt, validation_function, error_message):
     while True:
@@ -54,9 +55,9 @@ def main():
     while True:
         display_menu()
 
-        choice = input("\nEnter your choice (1-11): ").strip()
+        choice = input("\nEnter your choice (1-12): ").strip()
 
-        if choice == "11":
+        if choice == "12":
             print("\nThank you for using CampusFlow!")
             break
 
@@ -144,7 +145,7 @@ def main():
 
         elif choice == "3":
             print("\n--- View Ticket ---")
-            
+
             ticket_id = input("Enter ticket ID: ").strip().upper()
 
             ticket = view_ticket(tickets, ticket_id)
@@ -153,7 +154,6 @@ def main():
                 print("\nTicket not found.")
 
             else:
-               
                 print("\nTicket Details")
                 print("--------------------------")
                 print(f"ID: {ticket['id']}")
@@ -167,6 +167,20 @@ def main():
                     f"Assigned To: "
                     f"{ticket['assigned_to'] or 'Unassigned'}"
                 )
+
+                print("\nNotes")
+                print("--------------------------")
+
+                notes = ticket.get("notes", [])
+
+                if not notes:
+                    print("No notes yet.")
+                else:
+                    for note in notes:
+                        print(
+                            f"{note['note_id']} | "
+                            f"{note['author']}: {note['message']}"
+                        )
 
         elif choice == "4":
             print("\n--- Assign Ticket ---")
@@ -240,7 +254,7 @@ def main():
                         f"Priority: {ticket['priority']} | "
                         f"Status: {ticket['status']}"
                     )
-        
+
 
         elif choice == "8":
             print("\n--- Search Tickets ---")
@@ -333,8 +347,27 @@ def main():
 
         elif choice == "10":
             run_knowledge_check()
+
+
+
+        elif choice == "11":
+            print("\n--- Add Note to Ticket ---")
+
+            ticket_id = input("Enter ticket ID: ").strip().upper()
+            author = input("Enter your name: ").strip()
+            message = input("Enter note (5-300 characters): ").strip()
+
+            result = add_note(tickets, ticket_id, author, message)
+            print(result)
+
+            if result.startswith("Note added successfully"):
+                try:
+                    save_tickets(tickets)
+                except (ValueError, OSError) as error:
+                    print(f"Unable to save note: {error}")
+
         else:
-            print("\nInvalid option. Please enter a number from 1 to 10.")
+            print("\nInvalid option. Please enter a number from 1 to 12.")
 
 
 if __name__ == "__main__":
