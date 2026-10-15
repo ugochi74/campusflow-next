@@ -31,7 +31,8 @@ def display_menu():
     print("9. Generate Report")
     print("10. Engineering Knowledge Check")
     print("11. Add Note to Ticket")
-    print("12. Exit")
+    print("12. View Note")
+    print("13. Exit")
 
 def get_valid_ticket_input(prompt, validation_function, error_message):
     while True:
@@ -55,9 +56,9 @@ def main():
     while True:
         display_menu()
 
-        choice = input("\nEnter your choice (1-12): ").strip()
+        choice = input("\nEnter your choice (1-13): ").strip()
 
-        if choice == "12":
+        if choice == "13":
             print("\nThank you for using CampusFlow!")
             break
 
@@ -365,6 +366,28 @@ def main():
                     save_tickets(tickets)
                 except (ValueError, OSError) as error:
                     print(f"Unable to save note: {error}")
+        elif choice == "12":
+            print("\n--- View Notes ---")
+            ticket_id = input("Enter ticket ID: ").strip().upper()
+            ticket = view_ticket(tickets, ticket_id)
+            if ticket is None:
+                print("\nTicket not found.")
+            else:
+                notes = ticket.get("notes", [])
+                if not notes:
+                    print("\nNo notes found for this ticket.")
+                else:
+                    print(f"\nNotes for Ticket {ticket['id']}")
+                    print("--------------------------")
+
+                    for note in notes:
+                        print(
+                            f"Note ID: {note['note_id']}\n"
+                            f"Author: {note['author']}\n"
+                            f"Message: {note['message']}\n"
+                            "--------------------------"
+                        )
+
 
         else:
             print("\nInvalid option. Please enter a number from 1 to 12.")
