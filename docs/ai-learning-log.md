@@ -1,3 +1,5 @@
+Fellow: M
+
 # CampusFlow — AI Learning Log
 
 We used AI for guidance while building CampusFlow. We checked suggestions against our code, tests, and reviews instead of accepting every answer immediately.
