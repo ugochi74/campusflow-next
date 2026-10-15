@@ -48,8 +48,8 @@ def add_note(tickets, ticket_id, author, message):
     elif not isinstance(notes, list):
         return "Ticket notes are invalid."
 
-    
-    
+
+
     # Validate existing note IDs before choosing the next ID.
     note_numbers = []
     seen_note_ids = set()
