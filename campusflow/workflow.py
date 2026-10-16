@@ -101,7 +101,7 @@ def assign_ticket(tickets, ticket_id, staff_name):
 
     ticket["assigned_to"] = staff_name.strip()
 
-    return "Ticket assigned successfully."
+    return f"Ticket {ticket['id']} assigned successfully."
 
 
 def update_ticket_status(tickets, ticket_id, new_status):
@@ -120,11 +120,11 @@ def update_ticket_status(tickets, ticket_id, new_status):
             return "Assign the ticket before starting work."
 
         ticket["status"] = "in_progress"
-        return "Ticket is now in progress."
+        return f"Ticket {ticket['id']} is now in progress."
 
     if current_status == "in_progress" and new_status == "resolved":
         ticket["status"] = "resolved"
-        return "Ticket resolved successfully."
+        return f"Ticket {ticket['id']} resolved successfully."
 
     return "Invalid status transition."
 
@@ -140,7 +140,7 @@ def reopen_ticket(tickets, ticket_id):
 
     ticket["status"] = "open"
 
-    return "Ticket reopened successfully."
+    return f"Ticket {ticket['id']} reopened successfully."
 
 
 def get_work_queue(tickets):
