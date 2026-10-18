@@ -54,10 +54,41 @@ We used Python's `unittest` to check our functions. Tests help us notice mistake
 
 ## 10. How we worked as a team
 
-Engineer A worked on ticket creation and storage. Engineer B worked on workflow and reports.
+Engineer A worked on ticket creation and storage. Engineer B worked on workflow, reports, search and engineering knowledge check.
 
 We used separate Git branches, reviewed each other's Pull Requests, and tested how our code worked together.
 
 ## What we learned
 
 We learned how to split a program into smaller files, work together using GitHub, test Python code, and save information with JSON.
+
+# CampusFlow-Next 
+
+## 11. How we validate ticket information
+
+We validate ticket information before accepting it. This helps prevent missing titles, invalid categories, incorrect urgency values, and invalid numbers of affected users. We also normalize certain values so that information is stored consistently.
+
+## 12. How ticket IDs are generated
+
+Each ticket receives a unique ID, such as `T001` or `T002`. We generate the next ID using the highest existing ticket number plus one, rather than simply counting the tickets. This prevents ID collisions when existing tickets have gaps in their numbering.
+
+## 13. How search works
+
+The search feature helps staff find tickets using the title, category, status, and priority. Title searches are case-insensitive, and users can combine filters. When multiple filters are provided, a ticket must match all of them to appear in the results.
+
+## 14. Why we added the Engineering Knowledge Check
+
+We added a nine-question multiple-choice knowledge check to help engineers test their understanding of the project. It accepts answers using options A, B, C, and D, provides feedback on answers, and calculates a score. This supports learning and helps team members prepare to explain their technical decisions during reviews and audits.
+
+## 15. How we handle invalid operations and storage errors
+
+We validate operations before changing ticket data. If an operation is rejected, the existing ticket information should remain unchanged. We also use safeguards when loading and saving JSON data to reduce the risk of partial updates or data loss.
+
+## 16. Limitations and future improvements
+
+CampusFlow currently uses a command-line interface and JSON file storage to keep the project simple. Future improvements could include a web interface, database storage, user authentication, and more advanced reporting as the application's needs growing.
+
+## What we learned
+Through this project, we improved our understanding of Python functions, input validation, data structures, JSON storage, testing, and GitHub collaboration.
+
+We learned why it is important to test both valid and invalid inputs, and keep different responsibilities in separate modules.
