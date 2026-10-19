@@ -1,74 +1,52 @@
-Fellow: M
-
-# CampusFlow — AI Learning Log
-
-We used AI for guidance while building CampusFlow. We checked suggestions against our code, tests, and reviews instead of accepting every answer immediately.
-
-## Engineer A — Ticket Management and JSON Storage
-
-**Question 1:** How can I validate ticket titles, categories, urgency, and affected users in Python?
-
-**AI suggestion:** Create a `validate_ticket_input()` function to reject invalid inputs and normalize valid values.
-
-**What I did to verify it:** Tested valid and invalid inputs in `tests/test_tickets.py`, including blank titles, invalid categories, and decimal affected-user values.
-
-**What I learned:** Validation prevents incorrect data from entering the system and keeps ticket information consistent.
-
-**Question 2:** How can I save tickets to JSON and load them safely?
-
-**AI suggestion:** Use `json` in `storage.py` to save and load tickets, handling missing files, invalid JSON, and duplicate IDs.
-
-**What I did to verify it:** Ran the storage tests for saving, loading, invalid JSON, duplicate IDs, and failed saves. My recorded test run passed all 40 tests.
-
-**What I learned:** JSON preserves ticket data after the program closes, while validation and error handling help protect data integrity.
-
-**Question 3:** How should I organize my storage code and tests to avoid errors?
-
-**Original AI suggestion:** Separate ticket saving and loading into functions and test their behaviour.
-
-**What I independently corrected or improved:** I removed an unnecessary self-import in `storage.py` that caused a circular-import error. I also corrected validation and test issues.
-
-**How I verified my change:** Reran the automated test suite and confirmed that all 40 tests passed.
-
-**What I learned:** AI suggestions must be checked against the existing code. Debugging, validation, and testing help ensure the implementation works correctly.
-
-
-## Engineer B — Workflow and Reporting
-
-**Question 1:** How do I assign a ticket, deal with blank names, and stop someone assigning a resolved ticket?
-
-**AI suggestion:** Find the ticket by ID, check that the staff name is not blank, remove spaces around the name with `.strip()`, and require a resolved ticket to be reopened before assignment.
-
-**What I did to verify it:** I tested assignment using a name with extra spaces, such as `  Sarah  `, and saw that it was stored as `Sarah` or in normalized form in the version being tested. I also checked assignment and status rules in the workflow tests.
-
-**What I learned:** I learned that user input needs checking before a ticket is changed.
-
-**Question 2:** How do I stop invalid status changes, and how should tickets with the same priority be ordered?
-
-**AI suggestion:** Only allow `open` to `in_progress` after assignment, then `in_progress` to `resolved`; use a separate action to reopen a resolved ticket. Show only open tickets in the queue, ordered by priority and then ticket number.
-
-**What I did to verify it:** I tried an invalid status change and confirmed the status did not change. I also checked a priority tie and observed that the ticket with the lower ID came first.
-
-**What I learned:** I learned that workflow rules must be enforced in code, not just explained to users.
-
-**Question 3:** How should I check the complete save-and-reload process after a reviewer asked whether ticket IDs would stay unique?
-
-**Original AI suggestion:** AI suggested testing the whole process with a `try_integration.py` script: create `T001`, save it, reload it, then create `T002`. An earlier suggestion also proposed committing an integration test to the repository.
-
-**What I independently corrected, improved, or rejected:** I rejected the idea of committing my temporary `try_integration.py` script. I wanted that file only for local checking, not as part of the submitted project. I kept temporary testing separate from permanent project tests.
-
-**How I verified my change:** The existing unit-test run showed **40 passing tests**. The temporary save–reload–create scenario was prepared for a separate check.
-
-**What I learned:** AI suggestions can be useful without being followed exactly. I learned to choose what belongs in the project and what should stay as a local experiment.
-
-## What we learned together
-
-AI helped us understand errors, plan functions, and think of tests. But we still had to check the code ourselves. Reviewing each other's work helped us spot problems before merging.
-
-
 # CAMPUSFLOW NEXT
 
-## Engineer B — Search, Reporting and Knowledge Check
+# Engineer A (mercy ujih) — AI Learning Log
+
+## Learning Cycle 1 — Ticket Validation and ID Generation
+
+**Concept gap:** I needed to understand how to validate ticket information and generate unique ticket IDs without accepting invalid data or creating duplicate IDs.
+
+**Question asked AI:** How can I validate ticket inputs and generate the next ticket ID safely, including when existing IDs have gaps?
+
+**AI guidance:** Validate required fields and allowed values before creating a ticket. Generate the next ID from the highest existing numeric ticket ID plus one, rather than simply counting tickets.
+
+**Independent experiment:** I tested valid and invalid ticket inputs and checked ID generation with existing IDs that had gaps.
+
+**How I verified the guidance:** I ran unit tests covering invalid inputs, ticket validation, and ID generation. I checked that generated IDs followed the expected sequence and that invalid information was rejected.
+
+**Engineering decision:** I kept ticket validation and ID generation in the ticket module and used automated tests to check their beahviour.
+
+**What I learned:** Validating input before creating a ticket helps prevent bad data. Using the highest existing ID avoids duplicate IDs when earlier tickets have been deleted.
+
+## Learning Cycle 2 — Safe Ticket Updates and JSON Storage
+
+**Concept gap:** I needed to understand how to protect existing ticket data when an operation fails and how to load saved tickets without accepting an invalid collection.
+
+**Question asked AI:** How can I validate ticket operations and safely load and save ticket data using JSON without leaving the program in an inconsistent state?
+
+**AI guidance:** Check that an operation is valid before changing ticket data. When loading JSON, validate the complete collection before replacing the current data. Handle storage errors so failed operations do not silently corrupt existing information.
+
+**Independent experiment:** I tested invalid ticket data, duplicate ticket IDs, and failed save operations to check whether existing information was preserved.
+
+**How I verified the guidance:** I ran the storage and ticket unit tests, including tests for duplicate IDs, invalid data, and preserving an existing file when saving fails. I also ran the wider test suite to check that the changes did not break other features.
+
+**Engineering decision:** I used validation before mutation and added safeguards around JSON loading and saving. I kept the storage logic separate from the CLI so it could be tested independently.
+
+**What I learned:** A failed operation should not leave ticket data partially changed. Testing failure cases is just as important as testing successful operations.
+
+## Engineer A — Teamwork Reflection
+
+I focused on ticket validation, ID generation, and protecting ticket data. I worked with Engineer B, who handled search, reporting, and the Engineering Knowledge Check. We used Git branches and Pull Requests to review changes and worked together to integrate our features.
+
+I learned that clear task ownership, focused commits, code reviews, and tests help a team work on separate features while maintaining one working application.
+
+## Final Verification
+
+I used AI to understand concepts, explore possible solutions, and debug problems. I checked suggestions against the project requirements, source code, and automated tests rather than accepting them without verification.
+
+Before submitting this log, I confirmed that the test results and implementation details matched my actual work and latest test run.
+
+## Engineer B (confidence odo) — Search, Reporting and Knowledge Check
 
 ### Learning Cycle 1 — Combined Ticket Search
 
