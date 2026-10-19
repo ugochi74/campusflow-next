@@ -1,0 +1,9 @@
+========== KNOWLEDGE CHECK ==========
+
+Question 4: A resolved ticket receives 'Add note'. What should happen?
+Selected answer: C
+Your explanation: Resolved tickets are closed; notes are allowed only after a valid reopen.
+
+Question 1: Ticket T001 is open and unassigned. A user tries to move it to in_progress. What should happen?
+Selected answer: B
+Your explanation: The status change should be rejected if the ticket does not meet the assignment requirements, and its existing data should remain unchanged.

@@ -1,91 +1,17 @@
+
+import random
+from pathlib import Path
+
 QUESTIONS = [
     {
-        "question": "What is the main purpose of CampusFlow?",
+        "question": "Ticket T001 is open and unassigned. A user tries to move it to in_progress. What should happen?",
         "options": {
-            "A": "Manage helpdesk tickets",
-            "B": "Design websites",
-            "C": "Send emails only",
-            "D": "Create computer games",
-        },
-        "answer": "A",
-        "explanation": "CampusFlow helps users create, manage, and track helpdesk tickets.",
-    },
-    {
-        "question": "Why do we write unit tests?",
-        "options": {
-            "A": "To make files larger",
-            "B": "To check that code behaves as expected",
-            "C": "To replace all documentation",
-            "D": "To avoid writing functions",
+            "A": "Accept",
+            "B": "Reject and preserve all data",
+            "C": "Resolve it automatically",
+            "D": "Remove ticket",
         },
         "answer": "B",
-        "explanation": "Unit tests help us detect errors and verify individual pieces of code.",
-    },
-    {
-        "question": "What does a Python dictionary store?",
-        "options": {
-            "A": "Only numbers",
-            "B": "Only strings",
-            "C": "Key-value pairs",
-            "D": "Only functions",
-        },
-        "answer": "C",
-        "explanation": "A dictionary stores information as key-value pairs.",
-    },
-    {
-        "question": "What is the purpose of Git branches?",
-        "options": {
-            "A": "To delete the repository",
-            "B": "To work on changes separately",
-            "C": "To run Python tests",
-            "D": "To install Python",
-        },
-        "answer": "B",
-        "explanation": "Branches allow developers to work on changes independently.",
-    },
-    {
-        "question": "What does a function return when it uses return?",
-        "options": {
-            "A": "A value to the caller",
-            "B": "A new Git branch",
-            "C": "A test report automatically",
-            "D": "A Python installation",
-        },
-        "answer": "A",
-        "explanation": "The return statement sends a value back to the caller.",
-    },
-    {
-        "question": "Why should ticket input be validated?",
-        "options": {
-            "A": "To make every ticket critical",
-            "B": "To prevent all tickets from being saved",
-            "C": "To ensure input follows the expected rules",
-            "D": "To remove the ticket ID",
-        },
-        "answer": "C",
-        "explanation": "Validation rejects invalid data before it causes problems.",
-    },
-    {
-        "question": "Filter title='wifi', category='Network', status='open'. Which records should match?",
-        "options": {
-            "A": "Any record matching one filter",
-            "B": "Only records matching all supplied filters",
-            "C": "All network records",
-            "D": "All open records",
-        },
-        "answer": "B",
-        "explanation": "Filters combine with AND, so every supplied filter must match.",
-    },
-    {
-        "question": "A resolved ticket receives 'Add note'. What should happen?",
-        "options": {
-            "A": "Append anyway",
-            "B": "Delete old notes",
-            "C": "Reject until reopened",
-            "D": "Change status silently",
-        },
-        "answer": "C",
-        "explanation": "Resolved tickets are closed; notes are allowed only after a valid reopen.",
     },
     {
         "question": "The app has zero tickets. What should resolution percentage display?",
@@ -96,7 +22,46 @@ QUESTIONS = [
             "D": "Divide by one without explanation",
         },
         "answer": "C",
-        "explanation": "An empty dataset should be handled without dividing by zero.",
+    },
+    {
+        "question": "Filter title='wifi', category='Network', status='open'. Which records should match?",
+        "options": {
+            "A": "Any record matching one filter",
+            "B": "Only records matching all supplied filters",
+            "C": "All network records",
+            "D": "All open records",
+        },
+        "answer": "B",
+    },
+    {
+        "question": "A resolved ticket receives 'Add note'. What should happen?",
+        "options": {
+            "A": "Append anyway",
+            "B": "Delete old notes",
+            "C": "Reject until reopened",
+            "D": "Change status silently",
+        },
+        "answer": "C",
+    },
+    {
+        "question": "The JSON file includes two tickets with the same ID. What should load do?",
+        "options": {
+            "A": "Keep both",
+            "B": "Replace memory with duplicates",
+            "C": "Reject the load without changing current memory",
+            "D": "Rename IDs silently",
+        },
+        "answer": "C",
+    },
+    {
+        "question": "A PR changes validation but has no negative-case tests. What is the best review action?",
+        "options": {
+            "A": "Approve because it runs",
+            "B": "Request focused tests and reasoning",
+            "C": "Merge immediately",
+            "D": "Ask AI to approve it",
+        },
+        "answer": "B",
     },
 ]
 
@@ -119,8 +84,10 @@ def get_valid_answer(input_func=None, print_func=None):
         print_func("Invalid answer. Please enter A, B, C, or D.")
 
 
-def run_knowledge_check(input_func=None, print_func=None):
-    """Run the engineering knowledge check and return the score."""
+
+
+def run_knowledge_check(input_func=None, print_func=None, notes_path=None):
+    """Run the quiz and save the user's written explanations."""
 
     if input_func is None:
         input_func = input
@@ -128,10 +95,22 @@ def run_knowledge_check(input_func=None, print_func=None):
     if print_func is None:
         print_func = print
 
+    # Set the location of the notes file.
+    if notes_path is None:
+        notes_path = (
+            Path(__file__).resolve().parent.parent
+            / "docs"
+            / "understanding-check-notes.txt"
+        )
+    else:
+        notes_path = Path(notes_path)
+
     score = 0
+    answers = []
 
     print_func("\n========== ENGINEERING KNOWLEDGE CHECK ==========")
 
+    # Stage 1: Ask all multiple-choice questions.
     for question_number, question in enumerate(QUESTIONS, start=1):
         print_func(f"\nQuestion {question_number}: {question['question']}")
 
@@ -139,25 +118,87 @@ def run_knowledge_check(input_func=None, print_func=None):
             print_func(f"{letter}. {option}")
 
         answer = get_valid_answer(input_func, print_func)
+        answers.append(answer)
 
         if answer == question["answer"]:
             score += 1
-            print_func("Correct!")
-        else:
-            print_func(
-                f"Incorrect. The correct answer is {question['answer']}."
-            )
 
-        explanation = question.get("explanation")
-        if explanation:
-            print_func(f"Explanation: {explanation}")
+        print_func("Answer recorded.")
 
-    total_questions = len(QUESTIONS)
-    percentage = (
-        (score / total_questions) * 100 if total_questions else 0
+    # Stage 2: Ask the user to explain two random questions.
+    print_func("\n========== EXPLAIN YOUR REASONING ==========")
+    print_func("Explain why you chose your answers to these two questions.")
+
+    selected_questions = random.sample(
+        list(enumerate(QUESTIONS, start=1)),
+        k=min(2, len(QUESTIONS)),
     )
 
-    print_func(f"\nYour final score: {score}/{total_questions}")
+    # Create the docs folder if it does not exist.
+    notes_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Append explanations to the notes file.
+    with notes_path.open("a", encoding="utf-8") as notes_file:
+        notes_file.write("\n========== KNOWLEDGE CHECK ==========\n")
+
+        for question_number, question in selected_questions:
+            print_func(
+                f"\nQuestion {question_number}: {question['question']}"
+            )
+            print_func(
+                f"Your selected answer: {answers[question_number - 1]}"
+            )
+
+            explanation = input_func(
+                "Explain your reasoning: "
+            ).strip()
+
+            while not explanation:
+                print_func("Your explanation cannot be empty.")
+                explanation = input_func(
+                    "Explain your reasoning: "
+                ).strip()
+
+            notes_file.write(
+                f"\nQuestion {question_number}: "
+                f"{question['question']}\n"
+            )
+            notes_file.write(
+                f"Selected answer: {answers[question_number - 1]}\n"
+            )
+            notes_file.write(
+                f"Your explanation: {explanation}\n"
+            )
+
+    print_func(f"\nYour explanations were saved to: {notes_path}")
+
+    # Stage 3: Display the answer review without explanations.
+    print_func("\n========== ANSWERS AND REVIEW ==========")
+
+    for question_number, question in enumerate(QUESTIONS, start=1):
+        user_answer = answers[question_number - 1]
+        correct_answer = question["answer"]
+
+        print_func(f"\nQuestion {question_number}: {question['question']}")
+        print_func(f"Your answer: {user_answer}")
+        print_func(f"Correct answer: {correct_answer}")
+
+        if user_answer == correct_answer:
+            print_func("Result: Correct")
+        else:
+            print_func("Result: Incorrect")
+
+    # Stage 4: Display the final score.
+    total_questions = len(QUESTIONS)
+
+    percentage = (
+        (score / total_questions) * 100
+        if total_questions
+        else 0
+    )
+
+    print_func("\n========== FINAL RESULT ==========")
+    print_func(f"Your final score: {score}/{total_questions}")
     print_func(f"Your percentage: {percentage:.1f}%")
 
     if percentage >= 80:
